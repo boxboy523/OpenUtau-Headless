@@ -29,6 +29,7 @@ namespace OpenUtau.Core {
 
         private Thread mainThread;
         private TaskScheduler mainScheduler;
+        private bool headless;
 
         public int playPosTick = 0;
         public int rangeStartTick = 0;
@@ -55,6 +56,16 @@ namespace OpenUtau.Core {
             this.mainThread = mainThread;
             this.mainScheduler = mainScheduler;
             PhonemizerRunner = new PhonemizerRunner(mainScheduler);
+        }
+
+        public void InitializeHeadless(TaskScheduler scheduler) {
+            SearchAllPlugins();
+            SearchAllLegacyPlugins();
+            mainThread = Thread.CurrentThread;
+            mainScheduler = scheduler;
+            headless = true;
+            PostOnUIThread = action => action();
+            PhonemizerRunner = new PhonemizerRunner(scheduler);
         }
 
         public void SearchAllLegacyPlugins() {
@@ -193,7 +204,7 @@ namespace OpenUtau.Core {
         }
 
         public void ExecuteCmd(UCommand cmd) {
-            if (mainThread != Thread.CurrentThread) {
+            if (!headless && mainThread != Thread.CurrentThread) {
                 if (!(cmd is ProgressBarNotification)) {
                     Log.Warning($"{cmd} not on main thread");
                 }

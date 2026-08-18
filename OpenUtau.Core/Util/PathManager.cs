@@ -87,6 +87,23 @@ namespace OpenUtau.Core {
         public string NotePresetsFilePath => Path.Combine(DataPath, "notepresets.json");
         public string BackupsPath => Path.Combine(DataPath, "Backups");
 
+        /// <summary>
+        /// Overrides user data and cache roots for non-GUI hosts. This must be called before
+        /// initializing tools, singers, plugins, or preferences.
+        /// </summary>
+        public void ConfigureDataPath(string dataPath, string? cachePath = null) {
+            if (string.IsNullOrWhiteSpace(dataPath)) {
+                throw new ArgumentException("Data path must not be empty.", nameof(dataPath));
+            }
+            DataPath = Path.GetFullPath(dataPath);
+            CachePath = string.IsNullOrWhiteSpace(cachePath)
+                ? Path.Combine(DataPath, "Cache")
+                : Path.GetFullPath(cachePath);
+            Directory.CreateDirectory(DataPath);
+            Directory.CreateDirectory(CachePath);
+            HomePathIsAscii = DataPath.All(character => character < 128);
+        }
+
         public List<string> SingersPaths {
             get {
                 var list = new List<string> { SingersPath };
