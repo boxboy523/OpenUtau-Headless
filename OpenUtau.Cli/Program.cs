@@ -47,12 +47,12 @@ internal static class Program {
 
         UProject project;
         try {
-            project = Ustx.Load(Path.GetFullPath(projectPath));
+            project = Ustx.Load(Path.GetFullPath(projectPath), validate: false);
         } catch (Exception exception) {
             return Fail(InvalidProject, exception.ToString());
         }
         var missing = project.tracks
-            .Where(track => track.Singer == null || !track.Singer.Found || !track.Singer.Loaded)
+            .Where(track => track.Singer == null || !track.Singer.Found)
             .Select(track => track.singer ?? track.TrackName)
             .Distinct()
             .ToArray();

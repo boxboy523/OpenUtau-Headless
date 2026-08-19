@@ -124,14 +124,16 @@ namespace OpenUtau.Core.Format {
             }
         }
 
-        public static UProject Load(string filePath) {
+        public static UProject Load(string filePath, bool validate = true) {
             string text = File.ReadAllText(filePath, Encoding.UTF8);
             UProject project = Yaml.DefaultDeserializer.Deserialize<UProject>(text);
             AddDefaultExpressions(project);
             project.FilePath = filePath;
             project.Saved = true;
             project.AfterLoad();
-            project.ValidateFull();
+            if (validate) {
+                project.ValidateFull();
+            }
             if (project.ustxVersion > kUstxVersion) {
                 throw new MessageCustomizableException($"Project file is newer than software: {filePath}", $"<translate:errors.failed.opennewerproject>:\n{filePath}", new FileFormatException("Project file is newer than software."));
             }
